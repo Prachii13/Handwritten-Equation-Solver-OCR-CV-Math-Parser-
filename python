@@ -1,0 +1,42 @@
+
+---
+
+### 🔧 `solve_equation.py`
+```python
+import cv2
+import pytesseract
+from sympy import Eq, symbols, solve
+
+# Optional: Set Tesseract path
+# pytesseract.pytesseract.tesseract_cmd = r'<full_path_to_tesseract.exe>'
+
+def preprocess(image_path):
+    img = cv2.imread(image_path)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _, threshed = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
+    return threshed
+
+def extract_equation(image_path):
+    image = preprocess(image_path)
+    equation = pytesseract.image_to_string(image, config='--psm 7')
+    print("Extracted:", equation.strip())
+    return equation.strip()
+
+def solve_equation(equation):
+    x = symbols('x')
+    if '=' in equation:
+        left, right = equation.split('=')
+        eq = Eq(eval(left), eval(right))
+        return solve(eq)
+    else:
+        return eval(equation)
+
+if __name__ == "__main__":
+    import sys
+    path = sys.argv[1]
+    eq = extract_equation(path)
+    try:
+        result = solve_equation(eq)
+        print("✅ Solution:", result)
+    except Exception as e:
+        print("❌ Could not solve:", e)
