@@ -1,0 +1,7 @@
+handwritten_equation_solver/
+├── data/sample_equations/             # Sample handwritten equation images
+├── solve_equation.py                  # Main logic (OCR + solver)
+├── app.py                             # Streamlit app
+├── requirements.txt
+├── README.md
+└── .gitignore
