@@ -1,0 +1,28 @@
+import streamlit as st
+from PIL import Image
+import cv2
+import pytesseract
+from sympy import Eq, symbols, solve
+
+st.title("✍️ Handwritten Equation Solver")
+
+uploaded = st.file_uploader("Upload a handwritten equation image", type=["png", "jpg", "jpeg"])
+
+if uploaded:
+    st.image(uploaded, caption="Uploaded Image", use_column_width=True)
+    img = cv2.imdecode(np.frombuffer(uploaded.read(), np.uint8), 1)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _, threshed = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
+    text = pytesseract.image_to_string(threshed, config='--psm 7').strip()
+    st.code(f"Extracted Equation: {text}")
+    try:
+        x = symbols('x')
+        if '=' in text:
+            left, right = text.split('=')
+            eq = Eq(eval(left), eval(right))
+            solution = solve(eq)
+        else:
+            solution = eval(text)
+        st.success(f"✅ Solution: {solution}")
+    except Exception as e:
+        st.error(f"❌ Could not solve the equation: {e}")
